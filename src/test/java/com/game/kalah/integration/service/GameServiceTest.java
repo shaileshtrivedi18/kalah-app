@@ -1,9 +1,10 @@
-package com.game.kalah.service;
+package com.game.kalah.integration.service;
 
 import com.game.kalah.exception.GameNotFoundException;
 import com.game.kalah.exception.InvalidMoveException;
 import com.game.kalah.model.GameDetailedResponse;
 import com.game.kalah.model.GameResponse;
+import com.game.kalah.service.GameService;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;

@@ -14,6 +14,13 @@ import static com.game.kalah.model.Player.PLAYERB;
 @Component
 public class GameStatusValidator {
 
+    /**
+     * This method check if any of the player has all pits empty.
+     * If so, then other player's pits are put in its house and
+     * depending on the stones count of both the players, game status is updated
+     * with the winning player
+     * @param playRequest
+     */
     public void validate(PlayRequest playRequest){
         Game game = playRequest.getGame();
         int playerASumPits = PLAYERA.pits()

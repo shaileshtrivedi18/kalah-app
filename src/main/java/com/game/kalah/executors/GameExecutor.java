@@ -25,12 +25,17 @@ public class GameExecutor {
     private final GameStatusValidator gameStatusValidator;
 
     public void play(PlayRequest request){
+        //validate the request
         requestValidator.validate(request);
         request.setCurrentPlayer(Game.findPlayerByPit(request.getPit()));
         makeMove(request);
         gameStatusValidator.validate(request);
     }
 
+    /**
+     * make a move for the specified pit
+     * @param playRequest
+     */
     private void makeMove(PlayRequest playRequest){
         int lastDropPit = playRequest.getPit();
         int stones = collectStonesAndResetPit(playRequest.getGame(), playRequest.getPit());
@@ -38,6 +43,7 @@ public class GameExecutor {
         while(stones > 0){
             lastDropPit = nextPit(lastDropPit);
 
+            //don't drop the stone in other player's house
             if(isHouse(lastDropPit) && !playRequest.getCurrentPlayer().isMyHouse(lastDropPit)){
                 continue;
             }
@@ -46,6 +52,8 @@ public class GameExecutor {
             stones -= 1;
         }
 
+        //if last stone was dropped in your own empty pit, then collect that pit & opposite pit stones
+        //and move to your house
         if(playRequest.getCurrentPlayer().isMyPit(lastDropPit) && playRequest.getGame().getPit(lastDropPit) == 1){
             int lastDropPitOppositePit = Constants.TOTAL_PITS - lastDropPit;
             int oppositeLastDropPitStones = collectStonesAndResetPit(playRequest.getGame(), lastDropPitOppositePit);
@@ -54,6 +62,7 @@ public class GameExecutor {
             playRequest.getGame().addStonesToPit(playRequest.getCurrentPlayer().getHouse(), (oppositeLastDropPitStones + 1));
         }
 
+        //determine who will play next
         if(playRequest.getCurrentPlayer().isMyHouse(lastDropPit)){
             playRequest.getGame().setPlayerTurn(playRequest.getCurrentPlayer());
         } else {
@@ -61,12 +70,18 @@ public class GameExecutor {
         }
     }
 
+
     private int collectStonesAndResetPit(Game game, int pit){
         int stones = game.getPit(pit);
         game.resetPit(pit);
         return stones;
     }
 
+    /**
+     * find out next pit for the current player
+     * @param currentPit
+     * @return
+     */
     private int nextPit(Integer currentPit){
         int nextPit = currentPit + 1;
 

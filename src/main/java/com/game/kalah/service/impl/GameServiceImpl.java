@@ -26,20 +26,18 @@ public class GameServiceImpl implements GameService {
     public GameResponse createNewGame() {
         com.game.kalah.entity.Game game = new com.game.kalah.entity.Game();
         game.initialize();
-        saveGame(game);
 
-        return gameMapper.map(game);
+        return gameMapper.map(saveGame(game));
     }
 
     @Override
     public GameResponse makeMove(Integer gameId, Integer pit) {
         Game game = findGame(gameId);
+
         PlayRequest request = PlayRequest.builder().game(game).pit(pit).build();
-
         gameExecutor.play(request);
-        saveGame(request.getGame());
 
-        return gameMapper.mapDetailedResponse(request.getGame());
+        return gameMapper.mapDetailedResponse(saveGame(request.getGame()));
     }
 
     @Override
@@ -53,7 +51,7 @@ public class GameServiceImpl implements GameService {
         );
     }
 
-    private void saveGame(com.game.kalah.entity.Game game){
-        gameRepository.save(game);
+    private Game saveGame(com.game.kalah.entity.Game game){
+        return gameRepository.save(game);
     }
 }

@@ -1,4 +1,4 @@
-package com.game.kalah.controller;
+package com.game.kalah.rest.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,7 +6,6 @@ import com.game.kalah.exception.GameNotFoundException;
 import com.game.kalah.exception.InvalidMoveException;
 import com.game.kalah.model.GameDetailedResponse;
 import com.game.kalah.model.GameResponse;
-import com.game.kalah.rest.api.GameController;
 import com.game.kalah.service.GameService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,6 +94,17 @@ public class GameControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(101))
                 .andExpect(jsonPath("$.description").value("Invalid move for pit " + pitId +" : It's not your turn"));
+    }
+
+    @Test
+    public void testMakeMove_NotPossible_GameIsAlreadyOver() throws Exception{
+        given(gameService.makeMove(Integer.valueOf(gameId), pitId)).willThrow(new InvalidMoveException("No move possible : Game is already over"));
+
+        mockMvc.perform(put("/games/" + gameId + "/pits/"+ pitId )
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(101))
+                .andExpect(jsonPath("$.description").value("No move possible : Game is already over"));
     }
 
     private GameDetailedResponse moveResponse() throws JsonProcessingException {

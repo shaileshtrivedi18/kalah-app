@@ -5,13 +5,17 @@ import com.game.kalah.exception.InvalidMoveException;
 import com.game.kalah.model.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.ConstraintViolationException;
+
 /**
- * This class is responsible for handling the application errors and returning the error in a meaningful way to the consumer
+ * This class is responsible for handling the application errors and returning the error in a meaningful way
+ * in the API response
  * @author shailesh trivedi
  */
 
@@ -20,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseBody
 public class ErrorHandler {
 
-    public static final String INVALID_REQUEST = "101";
+    public static final String BAD_REQUEST = "101";
     public static final String GAME_NOT_FOUND = "102";
     public static final String SYSTEM_ERROR = "103";
 
@@ -30,11 +34,14 @@ public class ErrorHandler {
         return error(GAME_NOT_FOUND, exception);
     }
 
-    @ExceptionHandler(InvalidMoveException.class)
+    @ExceptionHandler({InvalidMoveException.class,
+            HttpMediaTypeNotSupportedException.class,
+            ConstraintViolationException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleInvalidMoveError(InvalidMoveException exception){
-        return error(INVALID_REQUEST, exception);
+    public ErrorResponse handleIncorrectHttpMediaTypeError(Exception exception){
+        return error(BAD_REQUEST, exception);
     }
+
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
