@@ -28,7 +28,10 @@ public class GameExecutor {
         //validate the request
         requestValidator.validate(request);
         request.setCurrentPlayer(Game.findPlayerByPit(request.getPit()));
+
         makeMove(request);
+
+        //check if game is over
         gameStatusValidator.validate(request);
     }
 

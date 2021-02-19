@@ -11,6 +11,7 @@ import com.game.kalah.model.GameDetailedResponse;
 import com.game.kalah.model.GameResponse;
 import com.game.kalah.repository.GameRepository;
 import com.game.kalah.service.impl.GameServiceImpl;
+import com.game.kalah.util.GameStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,6 +61,14 @@ public class GameServiceTest {
         when(gameRepository.findById(invalidGameID))
                 .thenReturn(Optional.empty());
         assertThrows(GameNotFoundException.class, () -> gameService.makeMove(invalidGameID, 2));
+    }
+
+    @Test
+    public void test_MoveNotPossible_WhenGameNotInProgressState(){
+        when(gameRepository.findById(gameID))
+                .thenReturn(finishedGame());
+        Exception exception = assertThrows(InvalidMoveException.class, () -> gameService.makeMove(gameID, 2));
+        assertEquals("No move possible : Game is already over", exception.getMessage());
     }
 
     @Test
@@ -186,6 +195,12 @@ public class GameServiceTest {
 
     private Optional<Game> gameEntity(){
         return gameEntity(null);
+    }
+
+    private Optional<Game> finishedGame(){
+        Game game = gameEntity().get();
+        game.setStatus(GameStatus.PLAYER_A_WIN);
+        return Optional.of(game);
     }
 
     GameExecutor gameExecutor(){
